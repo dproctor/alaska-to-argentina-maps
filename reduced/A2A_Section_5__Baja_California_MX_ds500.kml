@@ -2,7 +2,7 @@
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <description>A Route recorded by Devon on Oct 20, 18 -- View in full at http://ridewithgps.com/routes/28814927</description>
-    <name>A2A Section 7A Actual: Baja California, MX</name>
+    <name>A2A Section 5: Baja California, MX</name>
     <Style id="default_style">
       <LineStyle>
         <color>ff0000ff</color>
@@ -11,7 +11,7 @@
     </Style>
     <Placemark>
       <description> -- View in full at http://ridewithgps.com/routes/28814927</description>
-      <name>A2A Section 7A Actual: Baja California, MX</name>
+      <name>A2A Section 5: Baja California, MX</name>
       <visibility>1</visibility>
       <flyToView>1</flyToView>
       <styleUrl>#default_style</styleUrl>

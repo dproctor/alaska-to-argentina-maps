@@ -10,11 +10,16 @@ Combines multiple kmls.
 """
 
 from __future__ import print_function
+import argparse
+import math
 import os
 import sys
-import argparse
 import xml.etree.ElementTree as ET
-import math
+
+COORDINATES_XPATH = ("{http://www.opengis.net/kml/2.2}Document" +
+                     "/{http://www.opengis.net/kml/2.2}Placemark" +
+                     "/{http://www.opengis.net/kml/2.2}LineString" +
+                     "/{http://www.opengis.net/kml/2.2}coordinates")
 
 
 def main(arguments):
@@ -23,12 +28,15 @@ def main(arguments):
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
-        'inputs', help="Input kml files, comma separated", type=str)
+        'inputs',
+        help="""Input kml files, comma separated. The order of the
+        input files is preserved in the merged output.""",
+        type=str)
     parser.add_argument(
         'sample_rate',
-        help="""List of downsampling rates,
-            corresponding to each input. If <=1, the fraction of points to
-            preserve, otherwise the number of points to keep.""",
+        help="""Comma-separated list of downsampling rates, corresponding to
+        each input. If <=1, the fraction of points to preserve, otherwise the
+        number of points to keep.""",
         type=str)
 
     args = parser.parse_args(arguments)
@@ -50,20 +58,12 @@ def main(arguments):
     for i in range(len(inputs)):
         points += extract_points(ET.parse(inputs[i]), float(rates[i]))
     tree = ET.parse(inputs[0])
-    tree.getroot().find(
-        "{http://www.opengis.net/kml/2.2}Document" +
-        "/{http://www.opengis.net/kml/2.2}Placemark" +
-        "/{http://www.opengis.net/kml/2.2}LineString" +
-        "/{http://www.opengis.net/kml/2.2}coordinates").text = points
+    tree.getroot().find(COORDINATES_XPATH).text = points
     tree.write(sys.stdout)
 
 
 def extract_points(kml, sample_rate):
-    points = kml.getroot().find(
-        "{http://www.opengis.net/kml/2.2}Document" +
-        "/{http://www.opengis.net/kml/2.2}Placemark" +
-        "/{http://www.opengis.net/kml/2.2}LineString" +
-        "/{http://www.opengis.net/kml/2.2}coordinates").text
+    points = kml.getroot().find(COORDINATES_XPATH).text
     n = points.count('\n')
     sampled_points = ""
     sample_factor = 1
@@ -71,6 +71,7 @@ def extract_points(kml, sample_rate):
         sample_factor = math.floor(1 / sample_rate)
     else:
         sample_factor = math.floor(n / sample_rate)
+    sample_factor = max(sample_factor, 1)
     for (i, p) in enumerate(points.splitlines()):
         if i % sample_factor == 0:
             sampled_points += (p + "\n")
